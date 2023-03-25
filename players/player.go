@@ -1,6 +1,6 @@
 package players
 
-type Player struct {
+type FilteredPlayer struct {
 	ID         int `json:"ID"`
 	PlayerID   int `json:"playerid"`
 	ResourceID int `json:"resource_id"`
@@ -43,8 +43,34 @@ type Player struct {
 	XboxMinPrice int `json:"xbox_MinPrice"`
 	XboxMaxPrice int `json:"xbox_MaxPrice"`
 }
+type NamePlayer struct {
+	ID          string `json:"ID"`
+	Playerid    string `json:"playerid"`
+	ResourceID  string `json:"resource_id"`
+	Playername  string `json:"playername"`
+	Rating      string `json:"rating"`
+	Club        string `json:"club"`
+	League      string `json:"league"`
+	Nation      string `json:"nation"`
+	Raretype    string `json:"raretype"`
+	Rare        string `json:"rare"`
+	Playerimage string `json:"playerimage"`
+	Position    string `json:"position"`
+	PosAlt      string `json:"pos_alt"`
+	ClubName    string `json:"club_name"`
+	LeagueName  string `json:"league_name"`
+	CountryName string `json:"country_name"`
+	CommonName  string `json:"common_name"`
+	Pac         string `json:"pac"`
+	Sho         string `json:"sho"`
+	Pas         string `json:"pas"`
+	Dri         string `json:"dri"`
+	Def         string `json:"def"`
+	Phy         string `json:"phy"`
+	PlayerImage string `json:"player_image"`
+}
 
-func (p Player) Price(platform string) int {
+func (p FilteredPlayer) Price(platform string) int {
 	switch platform {
 	case "PC":
 		return p.PcPrice
@@ -55,7 +81,7 @@ func (p Player) Price(platform string) int {
 	}
 }
 
-func (p Player) MinPrice(platform string) int {
+func (p FilteredPlayer) MinPrice(platform string) int {
 	switch platform {
 	case "PC":
 		return p.PcMinPrice
@@ -66,7 +92,7 @@ func (p Player) MinPrice(platform string) int {
 	}
 }
 
-func (p Player) MaxPrice(platform string) int {
+func (p FilteredPlayer) MaxPrice(platform string) int {
 	switch platform {
 	case "PC":
 		return p.PcMaxPrice
@@ -77,7 +103,7 @@ func (p Player) MaxPrice(platform string) int {
 	}
 }
 
-func (p Player) PRP(platform string) int {
+func (p FilteredPlayer) PRP(platform string) int {
 	switch platform {
 	case "PC":
 		return p.PcPRP
@@ -88,6 +114,9 @@ func (p Player) PRP(platform string) int {
 	}
 }
 
-type playersData struct {
-	Players []Player `json:"data"`
+type playersDataFilter struct {
+	Players []FilteredPlayer `json:"data"`
+}
+type playersDataName struct {
+	Players []NamePlayer `json:"data"`
 }

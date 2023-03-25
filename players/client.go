@@ -2,6 +2,7 @@ package players
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -9,10 +10,11 @@ import (
 )
 
 type Client interface {
-	Get(opt *Options) ([]Player, error)
-	TOTW() ([]Player, error)
-	Popular() ([]Player, error)
-	Latest() ([]Player, error)
+	Get(opt *Options) ([]FilteredPlayer, error)
+	TOTW() ([]FilteredPlayer, error)
+	Popular() ([]FilteredPlayer, error)
+	Latest() ([]FilteredPlayer, error)
+	GetByName(name string) ([]NamePlayer, error)
 }
 
 func DefaultClient() Client {
@@ -27,7 +29,7 @@ type client struct {
 	client *http.Client
 }
 
-func (c client) Get(opt *Options) ([]Player, error) {
+func (c client) Get(opt *Options) ([]FilteredPlayer, error) {
 	u, _ := url.Parse("https://www.futbin.org/futbin/api/23/getFilteredPlayers")
 	pq := newPlayerQuery(opt)
 	q, err := query.Values(pq)
@@ -38,25 +40,40 @@ func (c client) Get(opt *Options) ([]Player, error) {
 	return c.get(u.String())
 }
 
-func (c client) TOTW() ([]Player, error) {
+func (c client) TOTW() ([]FilteredPlayer, error) {
 	return c.get("https://www.futbin.org/futbin/api/23/currentTOTW")
 }
 
-func (c client) Popular() ([]Player, error) {
+func (c client) Popular() ([]FilteredPlayer, error) {
 	return c.get("https://www.futbin.org/futbin/api/23/getPopularPlayers")
 }
+func (c client) GetByName(name string) ([]NamePlayer, error) {
+	return c.getByName(fmt.Sprintf("https://www.futbin.org/futbin/api/searchPlayersByName?playername=%s&year=23", name))
 
-func (c client) Latest() ([]Player, error) {
+}
+func (c client) Latest() ([]FilteredPlayer, error) {
 	return c.get("https://www.futbin.org/futbin/api/23/newPlayers")
 }
 
-func (c client) get(url string) ([]Player, error) {
+func (c client) get(url string) ([]FilteredPlayer, error) {
 	r, err := c.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer r.Body.Close()
-	var data playersData
+	var data playersDataFilter
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return nil, err
+	}
+	return data.Players, err
+}
+func (c client) getByName(url string) ([]NamePlayer, error) {
+	r, err := c.client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Body.Close()
+	var data playersDataName
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		return nil, err
 	}
